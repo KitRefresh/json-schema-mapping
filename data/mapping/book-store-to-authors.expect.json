@@ -1,0 +1,13 @@
+{
+  "authors": [
+    {
+      "name": "Nigel Rees",
+      "book": {
+        "price": 8.95,
+        "isbn": "0-3333",
+        "title": "Sayings of the century",
+        "category": "reference"
+      }
+    }
+  ]
+}
