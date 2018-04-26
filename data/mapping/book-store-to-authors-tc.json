@@ -1,0 +1,17 @@
+[
+  {
+    "name": "__root__",
+    "rules": [
+      ["$.store.book[0:3]", "~@book_to_author", "T.authors"]
+    ]
+  },
+  {
+    "name": "book_to_author",
+    "rules": [
+      ["$.author", "T.name", "string.uppercase", "T.alias"],
+      ["$.category", "string.uppercase", "T.book.category"],
+      ["$.title", "string.wrap('--')", "T.book.title"],
+      ["$.price", "math.round", "T.book.price"]
+    ]
+  }
+]

@@ -1,6 +1,7 @@
 import { MappingRule } from "../types/mapping-rule.model";
 import * as jsonpath from 'jsonpath';
 import { Logger } from "../utils/logger";
+import BuiltInPipes from "./builtin-pipes";
 
 const logger = new Logger('[Converter]', 3);
 
@@ -89,9 +90,14 @@ function applyMappingRule(source: any, ruleName: string, relatedRules: Map<strin
       }
 
       // Built-in function
-      else if (opt){
-        // TOOD: find converter and invoke it.
-        continue;
+      else if (opt in BuiltInPipes){
+        const builtInPipe = BuiltInPipes[opt];
+
+        try {
+          selectedData = builtInPipe.exec(selectedData);
+        } catch(e) {
+          selectedData = builtInPipe.err(e);
+        }
       }
       
       // Unhandled cases. Skip it.

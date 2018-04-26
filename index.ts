@@ -1,7 +1,4 @@
 import { convert } from './lib/converter';
-import * as jp from 'jsonpath';
-
-
 
 const rules = require('./data/mapping/book-store-to-authors.json');
 const bookstore = require('./data/source/book-store.json');
