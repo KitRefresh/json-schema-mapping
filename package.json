@@ -1,0 +1,10 @@
+{
+  "name": "LightConverter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "zeye",
+  "license": "MIT",
+  "dependencies": {
+    "jsonpath": "^1.0.0"
+  }
+}
