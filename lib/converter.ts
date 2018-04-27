@@ -27,12 +27,12 @@ export function convert(source: any, rules: MappingRule[]): any {
   })
 
   const rootRule = entryRules[0];
-  const result = applyMappingRule(source, ENTRY_RULE_NAME, ruleByName);
+  const result = applyMappingRule(ENTRY_RULE_NAME, ruleByName, source);
 
   return result;
 }
 
-function applyMappingRule(source: any, ruleName: string, relatedRules: Map<string, MappingRule>): any {
+function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRule>, source: any): any {
   if (!relatedRules.has(ruleName)) {
     logger.warn(`Cannot find given rule: ${ruleName}.`);
     return FALLBACK_VALUE;
@@ -78,7 +78,7 @@ function applyMappingRule(source: any, ruleName: string, relatedRules: Map<strin
 
 
         selectedData = (selectedData as any[]).map(data => {
-          return applyMappingRule(data, opt.slice(2), relatedRules);
+          return applyMappingRule(opt.slice(2), relatedRules, data);
         })
 
         logger.debug('~$ - Batch anchor to: ', selectedData);
@@ -86,7 +86,7 @@ function applyMappingRule(source: any, ruleName: string, relatedRules: Map<strin
 
       // Transform recursively
       else if (opt.startsWith('@')) {
-        selectedData = applyMappingRule(selectedData, opt.slice(1), relatedRules);
+        selectedData = applyMappingRule(opt.slice(1), relatedRules, selectedData);
       }
 
       // Built-in function
