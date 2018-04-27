@@ -31,6 +31,7 @@ export class Logger {
   constructor(prefix: string = '', severity = 1, target: StreamConsole = new NodeDefaultConsole()) {
     this.prefix = prefix;
     this.target =  target;
+    this.severity = severity;
   }
 
   debug(...args) {

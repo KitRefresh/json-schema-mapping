@@ -5,11 +5,14 @@ import BuiltInPipes from './builtin-pipes';
 import { pipebuilder } from './pipebuilder';
 import { pullData } from './pulldata';
 import { pushData } from './pushdata';
+import { isMultiPuller, isParamPipe, isPusher, isSinglePuller } from './validators';
+import { extractParamPipe } from './extractors';
 
-const logger = new Logger('[Converter]', 3);
+const logger = new Logger('[Converter]', 2);
 
 const ENTRY_RULE_NAME = '__root__';
 const FALLBACK_VALUE = null;
+
 
 export function convert(source: any, rules: MappingRule[]): any {
   if (!rules || rules.length === 0) {
@@ -51,36 +54,43 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
       return FALLBACK_VALUE;
     }
 
-    let selectedData: any;
+    let selectedData: any[] = [];
     // 2 - Execute sub rules.
     for (let opt of rule) {
 
       /* Apply operators */
 
       // Pull
-      if (opt.startsWith('$')) {
-        selectedData = pullData(source, opt);
+      if (isSinglePuller(opt)) {
+        selectedData = [ pullData(source, opt) ];
 
         logger.debug('$ - Anchor to: ', selectedData);
       }
 
-      // Push
-      else if (opt.startsWith('T')) {
-        logger.debug('T - Write to: ', result, 'with', selectedData);
+      else if (isMultiPuller(opt)) {
+        let pullers = opt.split(',').filter(x => x).map(x => x.trim());
+        selectedData = pullers.map(puller => pullData(source, puller));
 
-        result = pushData(result, opt, selectedData);
+        logger.debug('$ - Anchor to list: ', selectedData);
+      }
+
+      // Push
+      else if (isPusher(opt)) {
+        logger.debug('T - Write to: ', result, 'with', selectedData[0]);
+
+        result = pushData(result, opt, selectedData[0]);
       }
 
       // Transform -> recursively
       else if (opt.startsWith('@')) {
-        selectedData = applyMappingRule(opt.slice(1), relatedRules, selectedData);
+        selectedData[0] = applyMappingRule(opt.slice(1), relatedRules, selectedData[0]);
       }
 
       // Iterate condition
       else if (opt.startsWith('~')) {
 
         // Validate selectedData is iterable.
-        if (!Array.isArray(selectedData)) {
+        if (!Array.isArray(selectedData[0])) {
           logger.error('Non-iterable data stream. Please check your rule!');
           return FALLBACK_VALUE;
         }
@@ -105,15 +115,33 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
           return FALLBACK_VALUE;
         }
 
-        selectedData = (selectedData as any[]).map(fn); 
+        selectedData[0] = (selectedData[0] as any[]).map(fn); 
         logger.debug('~$ - Batch anchor to: ', selectedData);
       }
 
       // Built-in function
       else if (opt in BuiltInPipes){
 
-        selectedData = pipebuilder(BuiltInPipes[opt])(selectedData);
+        selectedData[0] = pipebuilder(BuiltInPipes[opt])(selectedData[0]);
 
+      }
+
+      else if (isParamPipe(opt)) {
+        const pipeInsight = extractParamPipe(opt);
+
+        const { fname, fparams } = pipeInsight;
+
+        if (!fname) {
+          logger.warn('Invalid pipe, extract info failed.', opt);
+          continue;
+        }
+
+        if (!(fname in BuiltInPipes)) {
+          logger.warn('Cannot find pipe definition: ', opt);
+          continue;
+        }
+
+        selectedData[0] = pipebuilder(BuiltInPipes[fname], ...fparams)(...selectedData);
       }
       
       // Unhandled cases. Skip it.

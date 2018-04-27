@@ -1,4 +1,4 @@
-import { isSinglePuller, digits, digits_range_full, digits_range_omit, digits_set, arr_suffix, word, word_with_arr, isMultiPuller, isPusher } from './validators';
+import { isSinglePuller, digits, digits_range_full, digits_range_omit, digits_set, arr_suffix, word, word_with_arr, isMultiPuller, isPusher, isParamPipe } from './validators';
 import { expect } from 'chai';
 
 const buildBooleanListValidator = (toValidateSource: any[], validator: (x: any) => boolean, isTrue: boolean) => {
@@ -95,7 +95,8 @@ describe('Rule validator', () => {
           '$.a[]',
           'T.a',
           'a.b.c',
-          ''
+          '',
+          '$.a, $.b'
         ];
 
         buildBooleanListValidator(toValidate, isSinglePuller, false);
@@ -146,6 +147,28 @@ describe('Rule validator', () => {
         ];
 
         buildBooleanListValidator(toValidate, isPusher, false);
+      });
+
+    });
+
+    describe('isParamPipe', () => {
+
+      it('should return true.', () => {
+        const toValidate = [
+          'string.wrap(\'www\')',
+          'transform(1,2,3)'
+        ]
+
+        buildBooleanListValidator(toValidate, isParamPipe, true);
+      });
+
+      it('should return false.', () => {
+        const toValidate = [
+          'string.wrap',
+          'transform()',
+        ];
+
+        buildBooleanListValidator(toValidate, isParamPipe, false);
       });
 
     });

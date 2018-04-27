@@ -29,3 +29,8 @@ const re_pusher = new RegExp(`^${pusher}$`);
 export function isPusher(rule: string): boolean {
   return re_pusher.test(rule);
 }
+
+const re_param_pipe = new RegExp(`^.+\\(.+\\)$`);
+export function isParamPipe(rule: string): boolean {
+  return re_param_pipe.test(rule);
+}
