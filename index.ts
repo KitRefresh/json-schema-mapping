@@ -1,7 +1,12 @@
-import { convert } from './lib/converter';
+import { isSinglePuller } from './lib/rulevalidator';
 
-const rules = require('./data/mapping/book-store-to-authors.json');
-const bookstore = require('./data/source/book-store.json');
+let validate = [
+  ['$', true],
+  ['$.', true],
+  ['$.a.b.c', true],
+  ['$.a[]', false],
+  ['$.a[*]', true],
+  ['$.a[1:3]', true],
+  ['$.a[]']
+];
 
-let result = convert(bookstore, rules);
-console.log('result = ', JSON.stringify(result, null, '\t'));

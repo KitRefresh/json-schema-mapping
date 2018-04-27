@@ -1,0 +1,24 @@
+{
+  "packages": [
+    {
+      "id": "0190120414",
+      "recipient": {
+        "surname": "Ye",
+        "forename": "Ze",
+        "phone": "8613333333333"
+      },
+      "sender": {
+        "surname": "St",
+        "forname": "Jh",
+        "phone": "1402049234"
+      },
+      "address": {
+        "country": 86,
+        "state": "Jiangsu",
+        "city": "Suzhou",
+        "street": "Xinghu",
+        "building": "B425"
+      }
+    }
+  ]
+}

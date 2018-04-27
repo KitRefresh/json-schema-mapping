@@ -1,11 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "module": "commonJS",
+    "target": "es6",
     "lib": [
       "es5",
       "es2015",
       "es6",
       "esnext"
-    ]
-  }
+    ],
+    "outDir": "./dist"
+  },
+  "include": [
+    "./lib",
+    "./utils",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
