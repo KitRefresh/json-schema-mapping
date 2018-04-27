@@ -126,6 +126,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
 
       }
 
+      // pipes with params
       else if (isParamPipe(opt)) {
         const pipeInsight = extractParamPipe(opt);
 
@@ -142,6 +143,37 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
         }
 
         selectedData[0] = pipebuilder(BuiltInPipes[fname], ...fparams)(...selectedData);
+      }
+
+      // Visit and transform nth data. (#0:pipeName is the default case. #0:could be omitted.)
+      else if (opt.startsWith('#')) {
+        const regex = new RegExp(/\#([0-9]+)\:(.+)/g);
+        const result = regex.exec(opt);
+
+        if (!result || result.length !== 3) {
+          logger.warn('Cannot understand pipe: ', opt);
+          continue;
+        }
+
+        const [ _, indexStr, realOpt ] = result;
+        const index = parseInt(indexStr);
+
+        if (!Number.isInteger(index)) {
+          logger.warn('#', 'Invalid indexStr: ', indexStr);
+          continue;
+        }
+
+        if (!selectedData[index]) {
+          logger.warn('#', 'Invalid index at: ', index, '(no data).');
+          continue;
+        }
+
+        if (!(realOpt in BuiltInPipes)) {
+          logger.warn('#', 'Cannot find rest part in pipe: ', realOpt);
+          continue;
+        }
+
+        selectedData[index] = pipebuilder(BuiltInPipes[realOpt])(selectedData[index]);
       }
       
       // Unhandled cases. Skip it.
