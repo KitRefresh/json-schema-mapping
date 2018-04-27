@@ -1,6 +1,8 @@
 import { MappingRule } from '../types/mapping-rule.model';
+import { curry } from '../utils/curry';
 import { Logger } from '../utils/logger';
 import BuiltInPipes from './builtin-pipes';
+import { pipebuilder } from './pipebuilder';
 import { pullData } from './pulldata';
 import { pushData } from './pushdata';
 
@@ -69,35 +71,45 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
         result = pushData(result, opt, selectedData);
       }
 
-      // Transform -> Iterate
-      else if (opt.startsWith('~@')) {
-        if (!Array.isArray(selectedData)) {
-          logger.error('Non-iterable data stream. Please check your rule!');
-          return FALLBACK_VALUE;
-        }
-
-
-        selectedData = (selectedData as any[]).map(data => {
-          return applyMappingRule(opt.slice(2), relatedRules, data);
-        })
-
-        logger.debug('~$ - Batch anchor to: ', selectedData);
-      }
-
       // Transform -> recursively
       else if (opt.startsWith('@')) {
         selectedData = applyMappingRule(opt.slice(1), relatedRules, selectedData);
       }
 
+      // Iterate condition
+      else if (opt.startsWith('~')) {
+
+        // Validate selectedData is iterable.
+        if (!Array.isArray(selectedData)) {
+          logger.error('Non-iterable data stream. Please check your rule!');
+          return FALLBACK_VALUE;
+        }
+
+        let fn: (data: any) => any;
+
+        // Recursive mapping rule.
+        if (opt.startsWith('~@')) {
+
+          const subRule = opt.slice(2);
+          fn = curry(applyMappingRule, subRule, relatedRules);
+
+        } else if (opt.slice(1) in BuiltInPipes) {
+
+          const selectedPipe = BuiltInPipes[opt.slice(1)];
+          fn = pipebuilder(selectedPipe);
+
+        }
+
+        selectedData = (selectedData as any[]).map(fn);
+
+        logger.debug('~$ - Batch anchor to: ', selectedData);
+      }
+
       // Built-in function
       else if (opt in BuiltInPipes){
-        const builtInPipe = BuiltInPipes[opt];
 
-        try {
-          selectedData = builtInPipe.exec(selectedData);
-        } catch(e) {
-          selectedData = builtInPipe.err(e);
-        }
+        selectedData = pipebuilder(BuiltInPipes[opt])(selectedData);
+
       }
       
       // Unhandled cases. Skip it.
