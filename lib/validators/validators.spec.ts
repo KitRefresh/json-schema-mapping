@@ -1,4 +1,4 @@
-import { isSinglePuller, digits, digits_range_full, digits_range_omit, digits_set, arr_suffix, word, word_with_arr, isMultiPuller, isPusher } from "./singlepuller";
+import { isSinglePuller, digits, digits_range_full, digits_range_omit, digits_set, arr_suffix, word, word_with_arr, isMultiPuller, isPusher } from './validators';
 import { expect } from 'chai';
 
 const buildBooleanListValidator = (toValidateSource: any[], validator: (x: any) => boolean, isTrue: boolean) => {
