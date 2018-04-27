@@ -20,6 +20,13 @@ const BuiltInPipes = {
     exec: (wrapper: string, d: string) => wrapper + d + wrapper,
   },
 
+  'string.itoa': {
+    in: 1,
+    out: 1,
+    exec: (d: number) => d.toString(),
+    err: (e) => '',
+  },
+
   'math.round': {
     in: 1,
     out: 1,

@@ -1,0 +1,8 @@
+[
+  {
+    "name": "__root__",
+    "rules": [
+      ["$.numbers[*]", "~string.itoa", "T.ids"]
+    ]
+  }
+]

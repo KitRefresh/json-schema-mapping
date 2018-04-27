@@ -100,8 +100,12 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
 
         }
 
-        selectedData = (selectedData as any[]).map(fn);
+        if (!fn) {
+          logger.warn('Cannot find mapping rule.');
+          return FALLBACK_VALUE;
+        }
 
+        selectedData = (selectedData as any[]).map(fn); 
         logger.debug('~$ - Batch anchor to: ', selectedData);
       }
 
