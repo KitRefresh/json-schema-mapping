@@ -86,6 +86,11 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
         selectedData[0] = applyMappingRule(opt.slice(1), relatedRules, selectedData[0]);
       }
 
+
+
+      
+      // TODO: merge all case together. Make it more reusable.
+
       // Iterate condition
       else if (opt.startsWith('~')) {
 
