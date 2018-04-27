@@ -1,7 +1,8 @@
-import { MappingRule } from "../types/mapping-rule.model";
-import * as jsonpath from 'jsonpath';
-import { Logger } from "../utils/logger";
-import BuiltInPipes from "./builtin-pipes";
+import { MappingRule } from '../types/mapping-rule.model';
+import { Logger } from '../utils/logger';
+import BuiltInPipes from './builtin-pipes';
+import { pullData } from './pulldata';
+import { pushData } from './pushdata';
 
 const logger = new Logger('[Converter]', 3);
 
@@ -26,7 +27,6 @@ export function convert(source: any, rules: MappingRule[]): any {
     ruleByName.set(rule.name, rule);
   })
 
-  const rootRule = entryRules[0];
   const result = applyMappingRule(ENTRY_RULE_NAME, ruleByName, source);
 
   return result;
@@ -69,7 +69,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
         result = pushData(result, opt, selectedData);
       }
 
-      // Iterate
+      // Transform -> Iterate
       else if (opt.startsWith('~@')) {
         if (!Array.isArray(selectedData)) {
           logger.error('Non-iterable data stream. Please check your rule!');
@@ -84,7 +84,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
         logger.debug('~$ - Batch anchor to: ', selectedData);
       }
 
-      // Transform recursively
+      // Transform -> recursively
       else if (opt.startsWith('@')) {
         selectedData = applyMappingRule(opt.slice(1), relatedRules, selectedData);
       }
@@ -111,50 +111,3 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
   
   return result;
 }
-
-function pullData(source: any, path: string) {
-  // TODO: make the result symmentric
-  let data = jsonpath.query(source, path);
-  if (path.endsWith(']')) {
-    return data;
-  }
-  return data[0];
-}
-
-
-function pushData(target: any, path: string, data: any): any {
-  let fields = path.split('.').slice(1);
-
-  // path === 'T'
-  if (fields.length === 0) {
-    return data;
-  }
-
-  let result: object = target || {};
-
-  // Skip the last element
-  result = fields.reduce(
-    (acc, curr, index) => {
-      if (index === fields.length - 1) {
-
-        // last element, write value.
-        acc[curr] = data;
-        return result;
-
-      } else {
-
-        // not last element, descent.
-        if (!(curr in acc)) {
-          acc[curr] = {}
-        }
-
-        return acc[curr];
-
-      }
-    },
-    result
-  );
-
-  return result;
-}
-
