@@ -146,7 +146,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
       
       // Unhandled cases. Skip it.
       else {
-        logger.warn(`Unknown pipe: ${rule}`);
+        logger.warn(`Unknown pipe: ${opt}`);
         continue;
       }
     }

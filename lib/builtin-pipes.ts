@@ -31,7 +31,6 @@ const BuiltInPipes = {
     in: -1,
     out: 1,
     exec: (template: string, ...params): string => {
-      console.log('string.template', params);
       return template.replace(/\{(\d+)\}/g, (curlyBracket) => {
         const indexStr = curlyBracket.substr(1, curlyBracket.length - 2);
         const index = parseInt(indexStr);
@@ -45,6 +44,13 @@ const BuiltInPipes = {
     out: 1,
     exec: (d: number) => Math.round(d),
     err: (e) => NaN,
+  },
+
+  'country.code_to_name': {
+    in: 1,
+    out: 1,
+    exec: (d: number) => 'China',
+    err: (e) => '',
   },
 
 }
