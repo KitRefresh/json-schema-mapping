@@ -116,11 +116,10 @@ export class ProcessOperation extends Operation {
   /**
    * Indicator of how to select input data.
    * 
-   * - If 'true', input = data[i] where i = `selectedIndex`;
-   * - If 'false', input = data.
-   *
+   * - If 'true', input will be sliced to [i, i+1) where i = `selectedIndex`;
+   * - If 'false', input won't be sliced.
    */
-  indexed: boolean;
+  sliced: boolean;
 
   /**
    * Only available when 'indexed' is 'true'. (default = 0)

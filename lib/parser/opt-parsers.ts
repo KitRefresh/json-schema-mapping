@@ -2,14 +2,14 @@ import { ProcessOperation, PullOperation, PushOperation } from '../../types/rule
 import { extractParamPipe } from './extractors';
 import { isMultiPuller, isParamPipe, isSinglePuller } from './validators';
 
-// TODO: finish exact parsing logic.
+// TODO: use real parsers instead of regex.
 
 export function buildPullOpt(str: string): PullOperation {
   let opt = new PullOperation();
 
   if (isSinglePuller(str)) {
     opt.sources = [str];
-  } else if (isMultiPuller) {
+  } else if (isMultiPuller(str)) {
     opt.sources = str.split(',').filter(x => x).map(x => x.trim());
   }
 
@@ -32,7 +32,7 @@ export function buildProcessOpt(str: string): ProcessOperation {
         throw new Error(`Invalid indexStr: ${indexStr} in pipe string.`);
       }
 
-      opt.indexed = true;
+      opt.sliced = true;
       opt.selectedIndex = index;
       stream = restStr;
     }

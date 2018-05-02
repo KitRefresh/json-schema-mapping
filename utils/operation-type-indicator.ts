@@ -7,7 +7,7 @@ import { Operation, OperationType } from "../types/rule-operation.model";
  * judge the type by comparing the 'type' field as a replacement.
  * (For those strongly typed language like C++, replace this module with more robust solution. )
  */
-export class RuleTypeIndicator {
+export class OperationTypeIndicator {
 
   /**
    * Judge the given operation is a PULL operation.

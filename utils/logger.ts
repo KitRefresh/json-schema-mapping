@@ -23,31 +23,38 @@ class NodeDefaultConsole implements StreamConsole {
   }
 }
 
+export enum LogSeverity {
+  DEBUG = 0,
+  LOG = 1,
+  WARNING = 2,
+  ERROR = 3,
+};
+
 export class Logger {
   private prefix: string;
   private target: any;
   private severity: number;
 
-  constructor(prefix: string = '', severity = 1, target: StreamConsole = new NodeDefaultConsole()) {
+  constructor(prefix: string = '', severity: LogSeverity = 1, target: StreamConsole = new NodeDefaultConsole()) {
     this.prefix = prefix;
     this.target =  target;
     this.severity = severity;
   }
 
   debug(...args) {
-    this.severity <= 0 && this.target.log(this.prefix, ...args);
+    this.severity <= LogSeverity.DEBUG && this.target.log(this.prefix, ...args);
   }
 
   log(...args) {
-    this.severity <= 1 && this.target.log(this.prefix, ...args);
+    this.severity <= LogSeverity.LOG && this.target.log(this.prefix, ...args);
   }
 
   warn(...args) {
-    this.severity <= 2 && this.target.warn(this.prefix, ...args);
+    this.severity <= LogSeverity.WARNING && this.target.warn(this.prefix, ...args);
   }
 
   error(...args) {
-    this.severity <= 3 && this.target.error(this.prefix, ...args);
+    this.severity <= LogSeverity.ERROR && this.target.error(this.prefix, ...args);
   }
 
 }
