@@ -12,6 +12,8 @@ export function extractParamPipe(pipe: string): { fname: string, fparams: string
   }
 
   const [ _, fname, fparam ] = results;
+
+  // TODO: use a real parser here instead of string.split.
   let params = fparam
     .split(',')
     .filter(x => x)

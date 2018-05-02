@@ -22,6 +22,10 @@ export function isMultiPuller(rule: string): boolean {
   return re_multi_puller.test(rule);
 }
 
+export function isPuller(rule: string): boolean {
+  return isSinglePuller(rule) || isMultiPuller(rule);
+}
+
 // data pusher
 const pusher = `T(\\.${word})*`;
 const re_pusher = new RegExp(`^${pusher}$`);
