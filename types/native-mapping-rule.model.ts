@@ -9,3 +9,5 @@ export class NativeMappingRule {
   pipelines: OperationSequence[];
 
 }
+
+export type NativeMappingConfig = NativeMappingRule[];
