@@ -1,12 +1,12 @@
 import { NativeMappingRule } from '../types/native-mapping-rule.model';
 import { ProcessOperation, PullOperation, PushOperation } from '../types/rule-operation.model';
-import { curry } from '../utils/curry';
-import { Logger, LogSeverity } from '../utils/logger';
-import { OperationTypeIndicator } from '../utils/operation-type-indicator';
 import BuiltInPipes from './builtin-pipes';
 import { pipebuilder } from './helpers/pipebuilder';
 import { pullData } from './helpers/pulldata';
 import { pushData } from './helpers/pushdata';
+import { curry } from './utils/curry';
+import { Logger, LogSeverity } from './utils/logger';
+import { OperationTypeIndicator } from './utils/operation-type-indicator';
 
 const logger = new Logger('[Converter]', LogSeverity.WARNING);
 
