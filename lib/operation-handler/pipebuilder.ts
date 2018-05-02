@@ -1,5 +1,5 @@
-import { Pipe } from '../types/pipe.model';
-import { curry } from '../utils/curry';
+import { Pipe } from '../../types/pipe.model';
+import { curry } from '../../utils/curry';
 
 export function pipebuilder(pipe: Pipe, ...givenParams: any[]): (...params: any[]) => any {
   return (...restParams: any[]) => {

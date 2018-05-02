@@ -1,6 +1,6 @@
 declare type Rule = string[];
 
-export class MappingRule {
+export class StringStyledMappingRule {
   name: string;
   rules: Rule[];
 }

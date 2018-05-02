@@ -1,12 +1,12 @@
-import { MappingRule } from '../types/mapping-rule.model';
+import { StringStyledMappingRule } from '../types/string-styled-mapping-rule.model';
 import { curry } from '../utils/curry';
 import { Logger } from '../utils/logger';
 import BuiltInPipes from './builtin-pipes';
-import { pipebuilder } from './pipebuilder';
-import { pullData } from './pulldata';
-import { pushData } from './pushdata';
-import { isMultiPuller, isParamPipe, isPusher, isSinglePuller } from './validators';
 import { extractParamPipe } from './extractors';
+import { pipebuilder } from './operation-handler/pipebuilder';
+import { pullData } from './operation-handler/pulldata';
+import { pushData } from './operation-handler/pushdata';
+import { isMultiPuller, isParamPipe, isPusher, isSinglePuller } from './parser/validators';
 
 const logger = new Logger('[Converter]', 2);
 
@@ -14,7 +14,7 @@ const ENTRY_RULE_NAME = '__root__';
 const FALLBACK_VALUE = null;
 
 
-export function convert(source: any, rules: MappingRule[]): any {
+export function convert(source: any, rules: StringStyledMappingRule[]): any {
   if (!rules || rules.length === 0) {
     logger.warn('Empty rules');
     return FALLBACK_VALUE;
@@ -27,7 +27,7 @@ export function convert(source: any, rules: MappingRule[]): any {
     return FALLBACK_VALUE;
   }
 
-  const ruleByName = new Map<string, MappingRule>();
+  const ruleByName = new Map<string, StringStyledMappingRule>();
   rules.forEach((rule) => {
     ruleByName.set(rule.name, rule);
   })
@@ -37,7 +37,7 @@ export function convert(source: any, rules: MappingRule[]): any {
   return result;
 }
 
-function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRule>, source: any): any {
+function applyMappingRule(ruleName: string, relatedRules: Map<string, StringStyledMappingRule>, source: any): any {
   if (!relatedRules.has(ruleName)) {
     logger.warn(`Cannot find given rule: ${ruleName}.`);
     return FALLBACK_VALUE;
@@ -88,7 +88,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, MappingRul
 
 
 
-      
+
       // TODO: merge all case together. Make it more reusable.
 
       // Iterate condition
