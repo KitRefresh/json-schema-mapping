@@ -8,6 +8,8 @@ export class NativeMappingRule {
 
   pipelines: OperationSequence[];
 
+  isEntry?: boolean;
+
 }
 
 export type NativeMappingConfig = NativeMappingRule[];

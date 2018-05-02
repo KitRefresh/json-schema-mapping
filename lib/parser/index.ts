@@ -1,8 +1,14 @@
-import { NativeMappingRule } from '../../types/native-mapping-rule.model';
+import { NativeMappingRule, NativeMappingConfig } from '../../types/native-mapping-rule.model';
 import { Operation, ProcessOperation, PullOperation, PushOperation } from '../../types/rule-operation.model';
-import { StringStyledMappingRule } from '../../types/string-styled-mapping-rule.model';
+import { StringStyledMappingRule, StringStyledMappingConfig } from '../../types/string-styled-mapping-rule.model';
 import { isMultiPuller, isPusher, isSinglePuller, isPuller } from './validators';
 import { buildPullOpt, buildPushOpt, buildProcessOpt } from './opt-parsers';
+
+const ENTRY_RULE_NAME = '__root__';
+
+export function parseMappingConfig(input: StringStyledMappingConfig): NativeMappingConfig {
+  return input.map(parseMappingRule);
+}
 
 export function parseMappingRule(input: StringStyledMappingRule): NativeMappingRule {
   return {
@@ -10,6 +16,7 @@ export function parseMappingRule(input: StringStyledMappingRule): NativeMappingR
     pipelines: input.rules.map(rule => {
       return rule.map(singleRuleStr => stringToOperation(singleRuleStr));
     }),
+    isEntry: input.name === ENTRY_RULE_NAME,
   };
 }
 

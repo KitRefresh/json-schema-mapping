@@ -45,8 +45,11 @@ export class PullOperation extends Operation {
 
   readonly type: OperationType = OperationType.PULL;
 
-  /** JSONPath string indicates which part of data shoud be selecetd. */
-  path: string;
+  /**
+   * JSONPath string list indicates which parts of data shoud be selecetd.
+   * (Usually we only have one data source, so the length of sources is mostly 1.)
+   */
+  sources: string[];
 
   /**
    * Set 'autoextract' = 'true' to auto extract selected data from the result of JSONPath.query.
@@ -57,6 +60,12 @@ export class PullOperation extends Operation {
    * (https://github.com/dchester/jsonpath)
   */
   autowrap: boolean;
+
+  constructor(dataSourcePaths = [], autowrap = false) {
+    super();
+    this.sources = dataSourcePaths.slice();
+    this.autowrap = autowrap;
+  }
 }
 
 
@@ -88,20 +97,13 @@ export class ProcessOperation extends Operation {
    * The name of selected pipe.
    * (Could be a built-in pipe or a customized pipe.)
   */
-  pipe: string;
+  pipeName: string;
 
   /**
    * Preset parameters of pipe function.
+   * (Should be invisible when 'isHyperRule' is 'true'.)
    */
-  params: any[];
-
-  /**
-   * Indicator of how to process input data.
-   * 
-   * - If 'true', perform like y = x.map(xi => fn(xi));
-   * - If 'false', perform like y = fn(x).
-   */
-  iterative: boolean;
+  pipeParameters: any[];
 
   /**
    * Indicates if this opt is a reference of another mapping rule.
@@ -110,6 +112,35 @@ export class ProcessOperation extends Operation {
    * - If 'false', search the handler among all built-in pipes.
    */
   isHyperRule: boolean;
+
+  /**
+   * Indicator of how to select input data.
+   * 
+   * - If 'true', input = data[i] where i = `selectedIndex`;
+   * - If 'false', input = data.
+   *
+   */
+  indexed: boolean;
+
+  /**
+   * Only available when 'indexed' is 'true'. (default = 0)
+   */
+  selectedIndex: number;
+
+  /**
+   * Indicator of how to process selected input data.
+   * 
+   * - If 'true', perform like y = x.map(xi => fn(xi));
+   * - If 'false', perform like y = fn(x).
+   */
+  iterative: boolean;
+
+  constructor(pipeName = '', params = []){
+    super();
+
+    this.pipeName = pipeName;
+    this.pipeParameters = params.slice();
+  }
 }
 
 
@@ -144,8 +175,11 @@ export class PushOperation extends Operation {
 
   readonly type: OperationType = OperationType.PUSH;
 
-  /** Target path in string indicates where to write the data. */
-  target: string;
+  /**
+   * Target path list in string indicates where to write the data.
+   * (If multiple targets provided, copy the data to all targets.)
+   */
+  targets: string[];
 
   /**
    *  Indicator of how to handle input data.
@@ -158,4 +192,11 @@ export class PushOperation extends Operation {
    *  But it's insaine to have one recursive mapping for each array PushOperation. For now, just keep it.)
    */
   iterative: boolean;
+  
+  constructor(targetPathList = [], iterative = false) {
+    super();
+
+    this.targets = targetPathList.slice();
+    this.iterative = iterative;
+  }
 }

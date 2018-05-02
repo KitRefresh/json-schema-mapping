@@ -14,7 +14,7 @@ export class RuleTypeIndicator {
    * @param {Operation} opt Input operation.
    * @return {boolean} If input is PullOperation, return true.
    */
-  isPullOperation(opt: Operation): boolean {
+  static isPullOperation(opt: Operation): boolean {
     return opt.type === OperationType.PULL;
   }
 
@@ -23,7 +23,7 @@ export class RuleTypeIndicator {
    * @param {Operation} opt Input operation.
    * @return {boolean} If input is ProcessOperation, return true.
    */
-  isProcessOperation(opt: Operation): boolean {
+  static isProcessOperation(opt: Operation): boolean {
     return opt.type === OperationType.PROCESS;
   }
 
@@ -32,7 +32,7 @@ export class RuleTypeIndicator {
    * @param {Operation} opt Input operation.
    * @return {boolean} If input is PushOperation, return true.
    */
-  isPushOpertaion(opt: Operation): boolean {
+  static isPushOpertaion(opt: Operation): boolean {
     return opt.type === OperationType.PUSH;
   }
   
@@ -41,7 +41,7 @@ export class RuleTypeIndicator {
    * @param {Operation} opt Input operation.
    * @return {OperationType} Exact type of given input.
    */
-  inferOperationType(opt: Operation): OperationType {
+  static inferOperationType(opt: Operation): OperationType {
     return opt.type;
   }
 }

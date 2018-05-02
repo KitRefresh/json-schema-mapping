@@ -1,43 +1,50 @@
-import { StringStyledMappingRule } from '../types/string-styled-mapping-rule.model';
+import { NativeMappingRule } from '../types/native-mapping-rule.model';
+import { StringStyledMappingRule, StringStyledMappingConfig } from '../types/string-styled-mapping-rule.model';
 import { curry } from '../utils/curry';
 import { Logger } from '../utils/logger';
 import BuiltInPipes from './builtin-pipes';
-import { extractParamPipe } from './extractors';
 import { pipebuilder } from './operation-handler/pipebuilder';
 import { pullData } from './operation-handler/pulldata';
 import { pushData } from './operation-handler/pushdata';
 import { isMultiPuller, isParamPipe, isPusher, isSinglePuller } from './parser/validators';
+import { Operation, PullOperation, PushOperation, ProcessOperation } from '../types/rule-operation.model';
+import { RuleTypeIndicator } from '../utils/operation-type-indicator';
+import { parseMappingConfig } from './parser';
 
 const logger = new Logger('[Converter]', 2);
 
-const ENTRY_RULE_NAME = '__root__';
 const FALLBACK_VALUE = null;
 
+export function convert(srcData: any, config: StringStyledMappingConfig): any {
+  let nativeConfig = parseMappingConfig(config);
+  return naitiveConvert(srcData, nativeConfig);
+}
 
-export function convert(source: any, rules: StringStyledMappingRule[]): any {
+function naitiveConvert(srcData: any, rules: NativeMappingRule[]): any {
   if (!rules || rules.length === 0) {
     logger.warn('Empty rules');
     return FALLBACK_VALUE;
   }
 
-  const entryRules = rules.filter(x => x.name === ENTRY_RULE_NAME);
-  
+  const entryRules = rules.filter(x => x.isEntry);
+
   if (entryRules.length !== 1) {
-    logger.warn('No __root__ rule or multiple __root__ rules.');
+    logger.warn('No entry rule or multiple entry rules.');
     return FALLBACK_VALUE;
   }
 
-  const ruleByName = new Map<string, StringStyledMappingRule>();
+  const ruleByName = new Map<string, NativeMappingRule>();
   rules.forEach((rule) => {
     ruleByName.set(rule.name, rule);
   })
 
-  const result = applyMappingRule(ENTRY_RULE_NAME, ruleByName, source);
+  const entryRuleName = entryRules[0].name;
+  const result = applyMappingRule(entryRuleName, ruleByName, srcData);
 
   return result;
 }
 
-function applyMappingRule(ruleName: string, relatedRules: Map<string, StringStyledMappingRule>, source: any): any {
+function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMappingRule>, srcData: any): any {
   if (!relatedRules.has(ruleName)) {
     logger.warn(`Cannot find given rule: ${ruleName}.`);
     return FALLBACK_VALUE;
@@ -46,149 +53,112 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, StringStyl
   let mappingRule = relatedRules.get(ruleName);
   let result: any;
 
-  for (let rule of mappingRule.rules) {
-    logger.debug('Execute rules: ', rule);
+  for (let pipeline of mappingRule.pipelines) {
+    logger.debug('Execute rules: ', pipeline);
+
     // 1 - Validate: Each rule should at least have two segments: pull + push.
-    if (rule.length < 2) {
+    if (pipeline.length < 2) {
       logger.error('Invalid mapping rule!');
       return FALLBACK_VALUE;
     }
 
-    let selectedData: any[] = [];
+    let streams: any[] = [];
     // 2 - Execute sub rules.
-    for (let opt of rule) {
+    for (let opt of pipeline) {
 
       /* Apply operators */
 
-      // Pull
-      if (isSinglePuller(opt)) {
-        selectedData = [ pullData(source, opt) ];
+      // PULL
+      if (RuleTypeIndicator.isPullOperation(opt)) {
+        streams = (opt as PullOperation).sources
+          .map((sourcePath) => pullData(srcData, sourcePath));
 
-        logger.debug('$ - Anchor to: ', selectedData);
+        logger.debug('$ - Anchor to: ', streams);
       }
 
-      else if (isMultiPuller(opt)) {
-        let pullers = opt.split(',').filter(x => x).map(x => x.trim());
-        selectedData = pullers.map(puller => pullData(source, puller));
+      // PUSH
+      else if (RuleTypeIndicator.isPushOpertaion(opt)) {
+        // If data streams are not merged to one, save them as array.
+        let dataToWrite = streams.length > 1 ? streams : streams[0];
 
-        logger.debug('$ - Anchor to list: ', selectedData);
-      }
-
-      // Push
-      else if (isPusher(opt)) {
-        logger.debug('T - Write to: ', result, 'with', selectedData[0]);
-
-        result = pushData(result, opt, selectedData[0]);
-      }
-
-      // Transform -> recursively
-      else if (opt.startsWith('@')) {
-        selectedData[0] = applyMappingRule(opt.slice(1), relatedRules, selectedData[0]);
-      }
-
-
-
-
-      // TODO: merge all case together. Make it more reusable.
-
-      // Iterate condition
-      else if (opt.startsWith('~')) {
-
-        // Validate selectedData is iterable.
-        if (!Array.isArray(selectedData[0])) {
-          logger.error('Non-iterable data stream. Please check your rule!');
-          return FALLBACK_VALUE;
+        for (let targetPath of (opt as PushOperation).targets) {
+          result = pushData(result, targetPath, dataToWrite);
         }
 
-        let fn: (data: any) => any;
+        logger.debug('T - Wrote to: ', result, 'with', dataToWrite);
+      }
 
-        // Recursive mapping rule.
-        if (opt.startsWith('~@')) {
+      // PROCESS
+      else if (RuleTypeIndicator.isProcessOperation(opt)) {
 
-          const subRule = opt.slice(2);
-          fn = curry(applyMappingRule, subRule, relatedRules);
+        // i - Init 'fn' based on pipeName.
+        const { isHyperRule, pipeName, pipeParameters } = (opt as ProcessOperation);
+        let fn: Function;
 
-        } else if (opt.slice(1) in BuiltInPipes) {
+        if (isHyperRule) {
 
-          const selectedPipe = BuiltInPipes[opt.slice(1)];
-          fn = pipebuilder(selectedPipe);
+          // DFS to transfrom recursively (ignore parameters).
+          fn = curry(applyMappingRule, pipeName, relatedRules);
+        }
 
+        else if (pipeName in BuiltInPipes) {
+
+          // Invoke built-in pipes with params.
+          fn = pipebuilder(BuiltInPipes[pipeName], ...pipeParameters);
         }
 
         if (!fn) {
-          logger.warn('Cannot find mapping rule.');
-          return FALLBACK_VALUE;
-        }
-
-        selectedData[0] = (selectedData[0] as any[]).map(fn); 
-        logger.debug('~$ - Batch anchor to: ', selectedData);
-      }
-
-      // Built-in function
-      else if (opt in BuiltInPipes){
-
-        selectedData[0] = pipebuilder(BuiltInPipes[opt])(selectedData[0]);
-
-      }
-
-      // pipes with params
-      else if (isParamPipe(opt)) {
-        const pipeInsight = extractParamPipe(opt);
-
-        const { fname, fparams } = pipeInsight;
-
-        if (!fname) {
-          logger.warn('Invalid pipe, extract info failed.', opt);
+          logger.error('Cannot find given pipe: ', pipeName);
           continue;
         }
 
-        if (!(fname in BuiltInPipes)) {
-          logger.warn('Cannot find pipe definition: ', opt);
-          continue;
+        // ii - Init input data source
+        let { indexed, selectedIndex } = (opt as ProcessOperation);
+        let inputData: any = streams;
+
+        if (indexed) {
+          inputData = streams.slice(selectedIndex, selectedIndex + 1);
         }
 
-        selectedData[0] = pipebuilder(BuiltInPipes[fname], ...fparams)(...selectedData);
-      }
+        // iii - Execute transform process.
+        const { iterative } = (opt as ProcessOperation);
+        let outputData: any;
 
-      // Visit and transform nth data. (#0:pipeName is the default case. #0:could be omitted.)
-      else if (opt.startsWith('#')) {
-        const regex = new RegExp(/\#([0-9]+)\:(.+)/g);
-        const result = regex.exec(opt);
+        if (iterative) {
 
-        if (!result || result.length !== 3) {
-          logger.warn('Cannot understand pipe: ', opt);
-          continue;
+          // HACK: iterative mode only transform the first stream. Ignore other streams.
+          inputData = inputData[0];
+
+           // Validate selectedData is iterable.
+           if (!Array.isArray(inputData)) {
+            logger.error('Non-iterable data stream. Please check your rule!', opt);
+            continue;
+          }
+
+          outputData = (inputData as any[]).map(x => fn(x));
+
+        } else {
+
+          // Expand input data as 1~N parameters.
+          outputData = fn(...inputData);
         }
 
-        const [ _, indexStr, realOpt ] = result;
-        const index = parseInt(indexStr);
+        // iv - Write output result to target.
 
-        if (!Number.isInteger(index)) {
-          logger.warn('#', 'Invalid indexStr: ', indexStr);
-          continue;
+        if (indexed) {
+
+          // Only modify ith stream under indexed mode.
+          streams[selectedIndex] = outputData;
+        } else {
+
+          // Otherwise, rewrite whole stream.
+          streams = [ outputData ];
         }
 
-        if (!selectedData[index]) {
-          logger.warn('#', 'Invalid index at: ', index, '(no data).');
-          continue;
-        }
-
-        if (!(realOpt in BuiltInPipes)) {
-          logger.warn('#', 'Cannot find rest part in pipe: ', realOpt);
-          continue;
-        }
-
-        selectedData[index] = pipebuilder(BuiltInPipes[realOpt])(selectedData[index]);
-      }
-      
-      // Unhandled cases. Skip it.
-      else {
-        logger.warn(`Unknown pipe: ${opt}`);
-        continue;
+        logger.log('F - Transformed data stream: ', streams);
       }
     }
-
   }
-  
+
   return result;
 }
