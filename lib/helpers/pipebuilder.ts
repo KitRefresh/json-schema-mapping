@@ -1,5 +1,5 @@
 import { Pipe } from '../../types/pipe.model';
-import { curry } from '../../utils/curry';
+import { curry } from '../utils/curry';
 
 // TODO: validate parameter length.
 export function pipebuilder(pipe: Pipe, ...givenParams: any[]): (...params: any[]) => any {

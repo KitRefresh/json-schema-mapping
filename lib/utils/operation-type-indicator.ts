@@ -1,4 +1,4 @@
-import { Operation, OperationType } from "../types/rule-operation.model";
+import { Operation, OperationType } from '../../types/rule-operation.model';
 
 /**
  * Class used to judge an Operation's type.
