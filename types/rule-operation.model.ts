@@ -27,7 +27,7 @@ export enum OperationType {
  * Base type for all *Operation types.
  */
 export class Operation {
-  type: OperationType;
+  readonly type: OperationType;
 }
 
 
@@ -42,7 +42,8 @@ export class Operation {
  *    }
  */
 export class PullOperation extends Operation {
-  type: OperationType = OperationType.PULL;
+
+  readonly type: OperationType = OperationType.PULL;
 
   /** JSONPath string indicates which part of data shoud be selecetd. */
   path: string;
@@ -53,6 +54,7 @@ export class PullOperation extends Operation {
    * The result of JSONPath.query will always be an array even you only select one field.
    *    e.g. JSONPath.query(userData, '$.name') -> ['James']
    * To get rid of the extra [] wrapper when necessary, set 'autowrap' = true.
+   * (https://github.com/dchester/jsonpath)
   */
   autowrap: boolean;
 }
@@ -79,7 +81,8 @@ export class PullOperation extends Operation {
  * 
  */
 export class ProcessOperation extends Operation {
-  type: OperationType = OperationType.PROCESS;
+
+  readonly type: OperationType = OperationType.PROCESS;
 
   /**
    * The name of selected pipe.
@@ -93,9 +96,20 @@ export class ProcessOperation extends Operation {
   params: any[];
 
   /**
+   * Indicator of how to process input data.
    * 
+   * - If 'true', perform like y = x.map(xi => fn(xi));
+   * - If 'false', perform like y = fn(x).
    */
   iterative: boolean;
+
+  /**
+   * Indicates if this opt is a reference of another mapping rule.
+   * 
+   * - If 'true', the executor will perform mapping recursively.
+   * - If 'false', search the handler among all built-in pipes.
+   */
+  isHyperRule: boolean;
 }
 
 
@@ -127,7 +141,8 @@ export class ProcessOperation extends Operation {
  *      - { name: [ 'John', 'James' ] }.
  */
 export class PushOperation extends Operation {
-  type: OperationType = OperationType.PUSH;
+
+  readonly type: OperationType = OperationType.PUSH;
 
   /** Target path in string indicates where to write the data. */
   target: string;
