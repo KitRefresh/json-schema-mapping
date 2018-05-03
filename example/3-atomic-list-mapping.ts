@@ -1,8 +1,7 @@
+import { runExample } from './example-runner';
 import { convert } from '../lib/converter';
 
-const rules = require('../data/mapping/number-to-string.json');
-const numberstore = require('../data/source/number-store.json');
+const rules = require('./data/mapping/number-to-string.rule.json');
+const numberstore = require('./data/source/number-store.json');
 
-let result = convert(numberstore, rules);
-
-console.log('Result: ', JSON.stringify(result));
+runExample(numberstore, rules);

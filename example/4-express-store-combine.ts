@@ -1,9 +1,7 @@
+import { runExample } from './example-runner';
 import { convert } from '../lib/converter';
 
-const rules = require('../data/mapping/express-store-address-merge.json');
-const express_store = require('../data/source/express-store.json');
+const rules = require('./data/mapping/express-store-address-merge.rule.json');
+const express_store = require('./data/source/express-store.json');
 
-console.log('data loaded');
-let result = convert(express_store, rules);
-
-console.log('Result: ', JSON.stringify(result, null, '\t'));
+runExample(express_store, rules);
