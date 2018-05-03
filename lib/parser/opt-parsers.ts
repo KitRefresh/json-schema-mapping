@@ -21,7 +21,7 @@ export function buildProcessOpt(str: string): ProcessOperation {
   let stream = str;
   
   if (stream.startsWith('#')) {
-    const regex = new RegExp(/\#([0-9]+)\:(.+)/g);
+    const regex = new RegExp(/\#([0-9]+)\:(.+)/g);  // e.g. #1:pipe(1,2,3)
     const result = regex.exec(stream);
 
     if (result && result.length === 3) {

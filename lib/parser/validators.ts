@@ -1,3 +1,4 @@
+/** BNF for pipes */
 export const digits = `[0-9]+`; // 123
 export const digits_range_full = `${digits}\\:${digits}(\\:${digits})?`; // 1:2:3 / 1:2
 export const digits_range_omit = `((${digits}\\:)|(\\:${digits}))`; // 1: / :2
@@ -34,6 +35,7 @@ export function isPusher(rule: string): boolean {
   return re_pusher.test(rule);
 }
 
+// data processor
 const re_param_pipe = new RegExp(`^.+\\(.+\\)$`);
 export function isParamPipe(rule: string): boolean {
   return re_param_pipe.test(rule);
