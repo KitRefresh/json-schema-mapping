@@ -1,5 +1,4 @@
-import { runExample } from './example-runner';
-import { convert } from '../lib/converter';
+import { runExample } from '../example-runner';
 
 const rules = require('./data/mapping/express-store-address-merge.rule.json');
 const express_store = require('./data/source/express-store.json');
