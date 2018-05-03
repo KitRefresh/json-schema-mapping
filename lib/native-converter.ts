@@ -8,6 +8,7 @@ import { pushData } from './helpers/pushdata';
 import { curry } from './utils/curry';
 import { Logger, LogSeverity } from './utils/logger';
 import { OperationTypeIndicator } from './utils/operation-type-indicator';
+import { replaceAt } from './utils/replace-at';
 
 const logger = new Logger('[Converter]', LogSeverity.WARNING);
 
@@ -52,7 +53,7 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMapp
     // Each rule should at least have two segments: pull + push.
     if (pipeline.length < 2) {
       logger.error('Invalid mapping rule!');
-      return FALLBACK_VALUE;
+      continue;
     }
 
     let streams: any[] = [];
@@ -70,12 +71,30 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMapp
 
       // PUSH
       else if (OperationTypeIndicator.isPushOpertaion(opt)) {
-        const { targets, streamIndex } = opt as PushOperation;
+        /* 1 - decide which part of data to write. */
+        const { target, indexed, selectedIndex } = opt as PushOperation;
+        let dataToWrite = indexed ? streams[selectedIndex] : streams;
 
-        let dataToWrite = streams[streamIndex];
+        /* 2 - decide if we should write data iteratively. (one to multiple) */
+        const { iterative, iterateKey } = opt as PushOperation;
 
-        for (let targetPath of (opt as PushOperation).targets) {
-          result = pushData(result, targetPath, dataToWrite);
+        if (iterative) {
+          // Assuming the 'arr' field in 'result' is already an obj array with length = N,
+          // all of those N elements in result.arr will be inserted by `dataToWrite` at `iterateKey`
+          let host = pullData(result, replaceAt(target, 0, '$'));
+          
+          if (!Array.isArray(host)) {
+            // write failed.
+            logger.error('Invalid selected target. Iterative pusher required an array target.');
+            continue;
+          }
+
+          (host as any[]).forEach(element => {
+            element[iterateKey] = dataToWrite;
+          });
+
+        } else {
+          result = pushData(result, target, dataToWrite);
         }
 
         logger.debug('T - Wrote to: ', result, 'with', dataToWrite);

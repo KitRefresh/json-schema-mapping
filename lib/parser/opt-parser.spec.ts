@@ -147,14 +147,29 @@ describe('Opt-Parser', () => {
   });
 
   describe('buildPushOpt()', () => {
-    it('create correct pusher.', () => {
+    it('create correct simple pusher.', () => {
       let opt = buildPushOpt('T.a');
 
       expect(opt).to.eql({
         type: 'push',
-        targets: ['T.a'],
-        streamIndex: 0,
+        target: 'T.a',
+        indexed: true,
+        selectedIndex: 0,
+        iterative: false,
       });
+    });
+
+    it('create correct iterative pusher.', () => {
+      let opt = buildPushOpt('T.a~b');
+
+      expect(opt).to.eql({
+        type: 'push',
+        target: 'T.a',
+        indexed: true,
+        selectedIndex: 0,
+        iterative: true,
+        iterateKey: 'b'
+      })
     });
   });
 

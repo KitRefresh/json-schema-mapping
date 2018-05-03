@@ -1,6 +1,6 @@
 import { ProcessOperation, PullOperation, PushOperation } from '../../types/rule-operation.model';
 import { extractParamPipe } from './extractors';
-import { isMultiPuller, isParamPipe, isSinglePuller } from './validators';
+import { isMultiPuller, isParamPipe, isSinglePuller, isIterativePusher } from './validators';
 
 // TODO: use real parsers instead of regex.
 
@@ -65,5 +65,19 @@ export function buildProcessOpt(str: string): ProcessOperation {
 }
 
 export function buildPushOpt(str: string): PushOperation {
-  return new PushOperation([str]);
+  let opt = new PushOperation(str);
+
+  if (isIterativePusher(str)) {
+    const regex = new RegExp(/^(.+)~(.+)$/g);
+    const result = regex.exec(str);
+    
+    if (result && result.length === 3) {
+      const [_, path, itKey] = result;
+      opt.target = path;
+      opt.iterative = true;
+      opt.iterateKey = itKey;
+    }
+  }
+
+  return opt;
 }

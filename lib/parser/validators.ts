@@ -28,11 +28,22 @@ export function isPuller(rule: string): boolean {
 }
 
 // data pusher
-const pusher = `T(\\.${word})*`;
+const simplePusher = `T(\\.${word})*`;
+const re_simplePusher = new RegExp(`^${simplePusher}$`);
+
+const iterativeSuffix = `\\~\\w+`;
+const iterativePusher = `${simplePusher}${iterativeSuffix}`;
+const re_iterativePusher = new RegExp(`^${iterativePusher}$`);
+
+const pusher = `${simplePusher}(${iterativeSuffix})?`;
 const re_pusher = new RegExp(`^${pusher}$`);
 
 export function isPusher(rule: string): boolean {
   return re_pusher.test(rule);
+}
+
+export function isIterativePusher(rule: string): boolean {
+  return re_iterativePusher.test(rule);
 }
 
 // data processor

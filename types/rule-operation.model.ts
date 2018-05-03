@@ -160,39 +160,60 @@ export class ProcessOperation extends Operation {
  *      }
  * 
  * e.g.2
- *      If you want to write a series of data (a string list) to `result[i].name`,
+ *      If you want to write a series of data (a string list) to `T.result[i].name`,
  *      your operation should look like this:
  * 
  *      operation = {
  *        type: 'PUSH',
- *        target: 'T.name',
+ *        target: 'T.result',
  *        iterative: true,
+ *        iterateKey: 'name',
  *      }
  *      
  *      Assuming the input is ['John', 'James'], the result should be
- *      - [ { name: 'John' }, { name: 'James' } ].
+ *      - { result: [ { name: 'John' }, { name: 'James' } ] }
  *      Compared with the condition when 'iterative' = false, the result would be
- *      - { name: [ 'John', 'James' ] }.
+ *      - { result: [ 'John', 'James' ] }.
  */
 export class PushOperation extends Operation {
 
   readonly type: OperationType = OperationType.PUSH;
 
   /**
-   * Target path list in string indicates where to write the data.
-   * (If multiple targets provided, copy the data to all targets.)
+   * Target path in string indicates where to write the data.
    */
-  targets: string[];
+  target: string;
+
+  /**
+   * If true, stream[i] is selected as input. ('true' by default)
+   */
+  indexed: boolean;
 
   /**
    * Indicator of where to get input data from the stream. (0 by default)
    */
-  streamIndex: number;
+  selectedIndex: number;
+
+  /**
+   * Indicator of how to write data.
+   * 
+   * - If true, iterate target path and write data to each element at `iterateKey`
+   */
+  iterative: boolean;
+
+  /**
+   * Only visible when `iterative` = true.
+   */
+  iterateKey: string;
   
-  constructor(targetPathList = [], streamIndex = 0) {
+  constructor(targetPath: string) {
     super();
 
-    this.targets = targetPathList.slice();
-    this.streamIndex = streamIndex;
+    this.target = targetPath;
+
+    this.indexed = true;
+    this.selectedIndex = 0;
+
+    this.iterative = false;
   }
 }

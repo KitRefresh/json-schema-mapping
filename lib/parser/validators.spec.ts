@@ -132,7 +132,8 @@ describe('Rule validator', () => {
           'T.a.b',
           'T',
           'T.a_b',
-          'T.a b.c'
+          'T.a b.c',
+          'T.a~b',
         ];
 
         buildBooleanListValidator(toValidate, isPusher, true);
