@@ -139,6 +139,10 @@ export class ProcessOperation extends Operation {
 
     this.pipeName = pipeName;
     this.pipeParameters = params.slice();
+
+    this.isHyperRule = false;
+    this.sliced = false;
+    this.iterative = false;
   }
 }
 

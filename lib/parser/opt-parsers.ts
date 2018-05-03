@@ -35,6 +35,8 @@ export function buildProcessOpt(str: string): ProcessOperation {
       opt.sliced = true;
       opt.selectedIndex = index;
       stream = restStr;
+    } else {
+      throw new Error(`Invalid pipe with sliced opt: ${str}`);
     }
   }
 
