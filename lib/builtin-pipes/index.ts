@@ -53,6 +53,32 @@ const BuiltInPipes = {
     err: (e) => '',
   },
 
+  'array.wrap': {
+    in: 1,
+    out: 1,
+    exec: (d: any) => [d],
+  },
+
+  'array.index': {
+    in: 2,
+    out: 1,
+    exec: (index: number, d: any[]) => d[index],
+    err: (e) => null,
+  },
+
+  'array.merge': {
+    in: -1,
+    out: 1,
+    exec: (...inputArrs: any[]) => [].concat(...inputArrs),
+    err: (e) => []
+  },
+
+  'object.get': {
+    in: 2,
+    out: 1,
+    exec: (key: string, d: object) => d[key],
+    err: (e) => null,
+  }
 }
 
 export default BuiltInPipes;

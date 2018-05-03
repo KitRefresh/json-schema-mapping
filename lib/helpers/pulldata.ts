@@ -7,9 +7,16 @@ import * as jsonpath from 'jsonpath';
  * @returns {any} - Selected data.
  */
 export function pullData(source: any, path: string): any {
+  // HACK: return source data directly if path === '$'
+  if (path === '$') {
+    return source;
+  }
+
   // TODO: make the result symmentric
   let data = jsonpath.query(source, path);
-  if (path.endsWith(']')) {
+
+  // HACK: paths like '$.arr[0]' will auto remove the array wrapper.
+  if (path.endsWith(']') && !/\[[0-9]+\]$/.test(path)) {
     return data;
   }
   return data[0];
