@@ -1,4 +1,4 @@
-import { buildPullOpt, buildProcessOpt } from "./opt-parsers";
+import { buildPullOpt, buildProcessOpt, buildPushOpt } from "./opt-parsers";
 import { expect } from 'chai';
 
 describe('Opt-Parser', () => {
@@ -144,6 +144,18 @@ describe('Opt-Parser', () => {
 
     });
 
+  });
+
+  describe('buildPushOpt()', () => {
+    it('create correct pusher.', () => {
+      let opt = buildPushOpt('T.a');
+
+      expect(opt).to.eql({
+        type: 'push',
+        targets: ['T.a'],
+        streamIndex: 0,
+      });
+    });
   });
 
 })

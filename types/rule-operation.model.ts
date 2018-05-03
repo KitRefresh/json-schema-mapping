@@ -185,21 +185,14 @@ export class PushOperation extends Operation {
   targets: string[];
 
   /**
-   *  Indicator of how to handle input data.
-   * 
-   *  If true, iterate input data and create an output for each item. Then wrap those outputs
-   *  into an array. (If input data is not iterable, ignore it.)
-   * 
-   *  (Actually, the responsibility of 'iterative' here is overlapped with that in ProcessOperation.
-   *  As a replacement, you can define a recursive mapping rule to perform the iterative PushOperation.
-   *  But it's insaine to have one recursive mapping for each array PushOperation. For now, just keep it.)
+   * Indicator of where to get input data from the stream. (0 by default)
    */
-  iterative: boolean;
+  streamIndex: number;
   
-  constructor(targetPathList = [], iterative = false) {
+  constructor(targetPathList = [], streamIndex = 0) {
     super();
 
     this.targets = targetPathList.slice();
-    this.iterative = iterative;
+    this.streamIndex = streamIndex;
   }
 }

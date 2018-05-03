@@ -69,8 +69,9 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMapp
 
       // PUSH
       else if (OperationTypeIndicator.isPushOpertaion(opt)) {
-        // If data streams are not merged to one, save them as array.
-        let dataToWrite = streams.length > 1 ? streams : streams[0];
+        const { targets, streamIndex } = opt as PushOperation;
+
+        let dataToWrite = streams[streamIndex];
 
         for (let targetPath of (opt as PushOperation).targets) {
           result = pushData(result, targetPath, dataToWrite);
