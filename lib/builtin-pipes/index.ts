@@ -69,7 +69,9 @@ const BuiltInPipes = {
   'array.merge': {
     in: -1,
     out: 1,
-    exec: (...inputArrs: any[]) => [].concat(...inputArrs),
+    exec: (inputArrs: any[][]) => {
+      return [].concat(...inputArrs);
+    },
     err: (e) => []
   },
 

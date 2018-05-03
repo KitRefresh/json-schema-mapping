@@ -1,4 +1,5 @@
 import { NativeMappingRule } from '../types/native-mapping-rule.model';
+import { Pipe } from '../types/pipe.model';
 import { ProcessOperation, PullOperation, PushOperation } from '../types/rule-operation.model';
 import BuiltInPipes from './builtin-pipes';
 import { pipebuilder } from './helpers/pipebuilder';
@@ -12,7 +13,7 @@ const logger = new Logger('[Converter]', LogSeverity.WARNING);
 
 const FALLBACK_VALUE = null;
 
-export function naitiveConverter(srcData: any, rules: NativeMappingRule[]): any {
+export function naitiveConverter(srcData: any, rules: NativeMappingRule[], customizedPipes: {[pipeName: string]: Pipe}): any {
   if (!rules || rules.length === 0) {
     logger.warn('Empty rules');
     return FALLBACK_VALUE;
@@ -31,12 +32,12 @@ export function naitiveConverter(srcData: any, rules: NativeMappingRule[]): any 
   })
 
   const entryRuleName = entryRules[0].name;
-  const result = applyMappingRule(entryRuleName, ruleByName, srcData);
+  const result = applyMappingRule(entryRuleName, ruleByName, customizedPipes, srcData);
 
   return result;
 }
 
-function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMappingRule>, srcData: any): any {
+function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMappingRule>, customizedPipes: {[pipeName: string]: Pipe}, srcData: any): any {
   if (!relatedRules.has(ruleName)) {
     logger.warn(`Cannot find given rule: ${ruleName}.`);
     return FALLBACK_VALUE;
@@ -89,11 +90,16 @@ function applyMappingRule(ruleName: string, relatedRules: Map<string, NativeMapp
 
         if (isHyperRule) {
           // DFS to transfrom recursively (ignore parameters).
-          fn = curry(applyMappingRule, pipeName, relatedRules);
+          fn = curry(applyMappingRule, pipeName, relatedRules, customizedPipes);
+
+        } else if (customizedPipes && pipeName in customizedPipes) {
+          // Custmized pipes has higher priority than built-in pipes.
+          fn = pipebuilder(customizedPipes[pipeName], ...pipeParameters);
 
         } else if (pipeName in BuiltInPipes) {
           // Invoke built-in pipes with params.
           fn = pipebuilder(BuiltInPipes[pipeName], ...pipeParameters);
+
         } else {
           logger.error('Cannot find given pipe: ', pipeName);
           continue;
