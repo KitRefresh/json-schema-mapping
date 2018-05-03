@@ -5,7 +5,8 @@
   "author": "zeye",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --require ts-node/register --watch-extensions ts \"lib/**/*.spec.ts\""
+    "test": "mocha --require ts-node/register --watch-extensions ts \"lib/**/*.spec.ts\"",
+    "example": "npx ts-node"
   },
   "dependencies": {
     "@types/jsonpath": "^0.2.0",
