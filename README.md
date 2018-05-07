@@ -1,16 +1,62 @@
-## Schema Mapping SDK Prototype
+# JSON Utilts - Schema Mapping
 
-#### Usage
+A json oriented package to transfrom a schema to another schema.
 
-Install dependencies:
+## Installation
 
-  - option 1 (recommended): `npm install`
-  - option 2 (if you are familiar with ts): `npm install -g ts-node typescript`
+`npm install --save jutils-schema-mapping`
 
+or
 
-Run examples:
-  - `npm run example {example_file_path}`
+`yarn add jutils-schema-mapping`
 
-For example:
-  1. `npm run example example/basic/1-shape.ts`
-  2. `npm run example example/e2e/1*`
+## Usage
+
+1. Basic usage
+```javascript
+const { convert } = require('jutils-schema-mapping');
+
+let output = convert(
+  { name: "myName" },
+  [                       // A series of mapping rules.
+    {
+      name: "__root__",   // Default entry rule name.
+      rules: [
+        ["$.name", "string.uppercase", "T.user.name"]
+      ]
+    }
+  ]
+)
+
+/**
+ * output = {
+ *  user: {
+ *    name: "MYNAME" 
+ *  }
+ * }
+ */
+```
+
+2. More examples
+
+    Please see those examples under the 'examples/' folder.
+
+## Mapping rule schema
+```typescript
+export class StringStyledMappingRule {
+  name: string;
+  rules: Rule[];
+}
+```
+
+## Pipe schema
+1. Pull data
+
+    Powered by [json-path](https://github.com/dchester/jsonpath)
+  
+2. Transform data
+    
+    *(TBD)*
+3. Push data
+
+    *(TBD)*
