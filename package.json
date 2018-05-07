@@ -1,5 +1,5 @@
 {
-  "name": "light-json-converter",
+  "name": "json-schema-converter",
   "version": "0.1.0",
   "main": "dist/index.js",
   "author": "yeze322@163.com",
