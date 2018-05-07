@@ -1,5 +1,5 @@
 {
-  "name": "json-schema-converter",
+  "name": "jutils-schema-mapping",
   "version": "0.1.0",
   "main": "dist/index.js",
   "author": "yeze322@163.com",
