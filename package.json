@@ -1,24 +1,29 @@
 {
   "name": "light-json-converter",
-  "version": "1.0.0",
-  "main": "index.js",
-  "author": "zeye",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "author": "yeze322@163.com",
   "license": "MIT",
   "scripts": {
     "test": "mocha --require ts-node/register --watch-extensions ts \"lib/**/*.spec.ts\"",
+    "prepublish": "tsc -p ./ --outDir dist/",
     "example": "npx ts-node"
   },
   "dependencies": {
-    "@types/jsonpath": "^0.2.0",
-    "@types/node": "^9.6.6",
     "jsonpath": "^1.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.3",
+    "@types/jsonpath": "^0.2.0",
     "@types/mocha": "^5.2.0",
+    "@types/node": "^9.6.6",
     "chai": "^4.1.2",
     "mocha": "^5.1.1",
     "ts-node": "^6.0.1",
     "typescript": "^2.8.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KitRefresh/json-schema-mapping"
   }
 }

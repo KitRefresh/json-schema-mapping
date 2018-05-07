@@ -12,7 +12,8 @@
   },
   "include": [
     "./lib",
-    "./utils",
+    "./types",
+    "index.ts"
   ],
   "exclude": [
     "node_modules"
