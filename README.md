@@ -1,6 +1,6 @@
-# JSON Utilts - Schema Mapping
+# JSON Utils - Schema Mapping
 
-A json oriented package to transfrom a schema to another schema.
+A JSON oriented package to transfrom a schema to another schema.
 
 ## Installation
 
@@ -56,7 +56,7 @@ export class StringStyledMappingRule {
   
 2. Transform data
     
-    *(TBD)*
+    `string.uppercase`, `object.get('name')`
 3. Push data
 
-    *(TBD)*
+    `T.name`, `T.person.name`
