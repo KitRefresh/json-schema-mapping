@@ -39,6 +39,16 @@ const BuiltInPipes = {
     }
   },
 
+  'string.replace': {
+    in: 3,
+    out: 1,
+    exec: (begin: number, end: number, content: string, input: string) => {
+      let prefix = input.substr(0, begin);
+      let suffix = input.substr(end, input.length - end);
+      return `${prefix}${content}${suffix}`;
+    }
+  },
+
   'math.round': {
     in: 1,
     out: 1,

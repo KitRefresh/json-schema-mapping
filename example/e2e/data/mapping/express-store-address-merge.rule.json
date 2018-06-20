@@ -11,6 +11,7 @@
       ["$.id", "T.package_no"],
       ["$.recipient.surname, $.recipient.forename", "string.template('{1} {0}')", "T.recipient"],
       ["$.recipient.phone", "T.phone"],
+      ["$.sender.courier", "string.replace(0,3,'Company ')","T.sender"],
       ["$.address.country, $.address.state, $.address.city, $.address.street, $.address.building", "#0:country.code_to_name", "string.template('{0} {1} {2} {3} Street: Building {4}')", "T.address"]
     ]
   }
